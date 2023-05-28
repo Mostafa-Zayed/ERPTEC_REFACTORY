@@ -1,3 +1,5 @@
 Modules/Garage
 Modules/Jumia
 node_modules
+.htaccess
+.env
