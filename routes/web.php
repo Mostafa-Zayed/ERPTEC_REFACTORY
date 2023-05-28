@@ -83,7 +83,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('tax-rates', 'TaxRateController');
 
     Route::resource('units', 'UnitController');
-
+    //testing
     Route::get('/contacts/payments/{contact_id}', 'ContactController@getContactPayments');
     Route::get('/contacts/map', 'ContactController@contactMap');
     Route::get('/contacts/update-status/{id}', 'ContactController@updateStatus');
