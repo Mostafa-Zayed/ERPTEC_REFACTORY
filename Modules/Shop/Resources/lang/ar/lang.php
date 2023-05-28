@@ -1,0 +1,22 @@
+<?php
+return [
+    'shop_disable_sync' => 'تعطيل المزامنة مع المتجر الالكتروني',
+    'shop_module' => 'المتجر الالكتروني',
+    'settings' => 'الاعدادات',
+    'add_settings' => 'اضافه اعدادات المتجر',
+    'shop_url' => 'رابط المتجر',
+    'shop_code' => 'كود المتجر',
+    'username' => 'اسم المستخدم',
+    'password' => 'كلمة السر',
+    'type' => 'صلاحيه',
+    'shop_name' => 'اسم المتجر',
+    'access_api_settings' => 'إعدادات واجهة برمجة التطبيقات',
+    'variation_sync_settings' => 'اعدادات مزامنة التباينات',
+    'categories_sync_settings' => 'اعدادات مزامنة الاقسام',
+    'sync_categories' => 'مزامنة الاقسام',
+    'show_sync' => 'عرض المزامنة',
+    'sync_variations' => 'مزامنة التباينات',
+    'sync_brands' => 'مزامنة العلامات التجارية',
+    'sync_taxs' => 'مزامنة الضرائب',
+    'sync_products' => 'مزامنة المنتجات',
+];

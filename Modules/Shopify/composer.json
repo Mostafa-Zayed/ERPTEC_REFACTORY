@@ -1,0 +1,25 @@
+{
+    "name": "twf/shopify",
+    "description": "this is shopify module that responsible of integration with shopify ",
+    "authors": [
+        {
+            "name": "ErpTec",
+            "email": "thewebfosters@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Shopify\\Providers\\ShopifyServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Shopify\\": ""
+        }
+    }
+}

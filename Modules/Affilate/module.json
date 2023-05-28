@@ -1,0 +1,16 @@
+{
+    "name": "Affilate",
+    "alias": "Affilate",
+    "description": "Affilate System.",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Affilate\\Providers\\AffilateServiceProvider"
+    ],
+    "aliases": [],
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

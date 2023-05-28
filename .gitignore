@@ -1,2 +1,3 @@
-test.txt
-vendor
+Modules/Garage
+Modules/Jumia
+node_modules

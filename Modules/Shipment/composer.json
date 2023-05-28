@@ -1,0 +1,26 @@
+{
+    "name": "twf/Shipment",
+    "description": "Vowalaa Erp System Shipment Module",
+    "authors": [
+        {
+            "name": "Mostafa Zayed",
+            "email": "mostafa.zayed9990@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Shipment\\Providers\\ShipmentServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Shipmnet\\": ""
+        }
+    }
+    
+}

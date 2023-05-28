@@ -1,0 +1,1 @@
+{!! Form::select('shipment_account_id',$accounts,null, ['class' => 'form-control form-select select2 mousetrap', 'id'=> 'shipment_account_id']); !!}

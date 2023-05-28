@@ -1,0 +1,723 @@
+<?php
+
+namespace Modules\Affilate\Http\traits;
+
+use App\Business;
+use App\Category;
+use App\Contact;
+use App\Address;
+use App\Exceptions\PurchaseSellMismatch;
+use App\Product;
+use App\TaxRate;
+use App\Transaction;
+use App\Utils\ProductUtil;
+
+use App\Utils\TransactionUtil;
+
+use App\Utils\Util;
+use App\Utils\ContactUtil;
+
+use App\VariationLocationDetails;
+use App\VariationTemplate;
+//use Automattic\Affilate\Client;
+
+use DB;
+use Modules\Affilate\Entities\AffilateSyncLog;
+
+use Modules\Affilate\Exceptions\AffilateError;
+
+trait  ApiTrait
+{
+  
+  
+      public function woo_client($business_id)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+        $curl = curl_init();
+        
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $cscart_api_settings->cscart_app_url.'/api/auth',
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_POSTFIELDS => array('email' => $cscart_api_settings->cscart_consumer_key),
+          CURLOPT_HTTPHEADER => array(
+            'Authorization: Bearer '.$token.''
+          ),
+        ));
+        
+        $response = curl_exec($curl);
+        
+        curl_close($curl);
+        
+        $response =  json_decode($response) ;
+       
+      
+        if(!empty($response->key)){
+            
+            
+           return true;
+           
+        }else{
+            
+            
+          return false;
+            
+        }
+        
+        
+
+ /*       $cscart = new Client(
+            $cscart_api_settings->cscart_app_url,
+            $cscart_api_settings->cscart_consumer_key,
+            $cscart_api_settings->cscart_consumer_secret,
+            [
+                'wp_api' => true,
+                'version' => 'wc/v2',
+               // 'timeout' => 1000000000000,
+                'verify_ssl' => false,
+            ]
+        );
+
+        return $cscart;*/
+    }
+
+  /*----------------------------------------------------------------------------------------------------------------------*/
+
+// Category
+    public function curl_category($business_id,$category,$id,$parent_id,$type)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+        if($parent_id !=0 ){
+            
+          $cscart_cat_id = Category::find($parent_id);
+          $parent_id = $cscart_cat_id->cscart_cat_id;
+          
+        }
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+        
+        
+             $curl = curl_init();
+            
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => $cscart_api_settings->cscart_app_url.'/api/categories/',
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => '',
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => 'POST',
+              CURLOPT_POSTFIELDS => array('category' => $category ,'parent_id' => $parent_id),
+              CURLOPT_HTTPHEADER => array(
+                'Authorization: Bearer '.$token.'',
+               
+                'Cookie: sid_admin_8299a=cce688b02679eeebdc0054e6c5856493-0-A'
+              ),
+            ));
+            
+            $response = curl_exec($curl);
+              
+            curl_close($curl);
+          
+            $response =  json_decode($response) ;
+     
+     
+        return $response;
+    }
+    
+  
+    public function curl_update_category($business_id,$category,$id,$parent_id,$type)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+        if($parent_id !=0){
+            
+          $cscart_cat_id = Category::find($parent_id);
+          $parent_id = $cscart_cat_id->cscart_cat_id;
+        }
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+        
+    
+     // Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/categories/'.$id);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"lang_code\":\"en\",\n    \"category\":\"$category\",\n    \"parent_id\":$parent_id\n}");
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch); 
+
+
+   
+        
+ $response =  json_decode($result) ;
+/*if (curl_errno($ch)) {
+    
+    \Log::info($result);
+    echo 'Error:' . curl_error($ch);
+}
+
+*/
+    curl_close($ch);
+
+
+
+        return $response;
+        
+        
+        
+        
+        
+    }
+  
+  /*----------------------------------------------------------------------------------------------------------------------*/
+    // Products
+  public function curl_product($business_id,$product)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+        $image = $product['images'];
+        $categories = json_encode($product['categories']);
+        $category = $product['category'];
+        $sku = $product['sku'];
+        $description = $product['description'];
+        $name = $product['name'];
+        $stock_quantity = $product['stock_quantity'];
+        $regular_price = $product['regular_price'];
+// Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/products');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{
+	\"product\": \"$name\",
+	\"category_ids\": $categories,
+	\"main_category\": $category,
+	\"price\": $regular_price,
+	\"amount\": $stock_quantity,
+	\"full_description\": \"$description\",
+	\"short_description\": \"$description\",
+	\"product_code\": \"$sku\",
+	\"company_id\": 1,
+	\"status\": \"A\",
+	\"main_pair\": {
+		\"detailed\": {
+			\"image_path\": \"$image\"
+		}
+	},
+	\"image_pairs\": {
+		\"detailed\": {
+			\"image_path\": \"$image\"
+		}
+	}
+
+}");
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+
+curl_close($ch);
+
+
+ \Log::info('result:' .$result); 
+
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response;
+    }
+
+   
+  public function curl_update_product($business_id,$product)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+        $id = $product['id'];
+        $image = $product['images'];
+        $categories = json_encode($product['categories']);
+        $category = $product['category'];
+        $sku = $product['sku'];
+        $description = $product['description'];
+        $name = $product['name'];
+        $stock_quantity = $product['stock_quantity'];
+        $regular_price = $product['regular_price'];
+// Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/products/'.$id);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{
+	\"product\": \"$name\",
+	\"category_ids\": $categories,
+	\"main_category\": $category,
+	\"price\": $regular_price,
+	\"amount\": $stock_quantity,
+	\"full_description\": \"$description\",
+	\"short_description\": \"$description\",
+	\"product_code\": \"$sku\",
+	\"company_id\": 1,
+	\"status\": \"A\",
+	\"main_pair\": {
+		\"detailed\": {
+			\"image_path\": \"$image\"
+		}
+	},
+	\"image_pairs\": {
+		\"detailed\": {
+			\"image_path\": \"$image\"
+		}
+	}
+
+}");
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+
+curl_close($ch);
+
+
+
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response;
+    }
+
+
+
+
+
+   
+  public function curl_createVariationTemplate($business_id,$attr)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+        $values = [];
+        $name = $attr->name;
+        $color = $attr->color;
+        
+      foreach($attr->values as $value){
+          $var_name = $value->name ;
+          $values[] = [
+              "variant" => $var_name ,
+              "color" => $color ,
+              
+              ] ;
+          
+      }  
+      
+      $json = json_encode($values) ;
+   /* "{\"variant\": \"$var_name\",\"color\": \"$color\",},"*/
+// Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/features/');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{
+	\"feature_type\": \"S\",
+	\"purpose\": \"group_variation_catalog_item\",
+	\"description\": \"$name\",
+	\"company_id\": 1,
+	\"feature_style\": \"dropdown_labels\",
+	\"status\": \"A\",
+    \"variants\": $json
+      
+     
+
+}");
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+
+curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+   
+        return $response;
+    }
+
+
+    public function curl_getVariationTemplate($business_id,$id)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+
+   /* "{\"variant\": \"$var_name\",\"color\": \"$color\",},"*/
+// Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/features/'.$id);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+
+curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response;
+    }
+
+
+    public function curl_updateVariationTemplate($business_id,$attr)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+        $values = [];
+        $name = $attr->name;
+        $color = $attr->color;
+        
+      foreach($attr->values as $value){
+          $var_name = $value->name ;
+          $values[] = [
+              "variant" => $var_name ,
+              "color" => $color ,
+              
+              ] ;
+          
+      }  
+      
+      $json = json_encode($values) ;
+   /* "{\"variant\": \"$var_name\",\"color\": \"$color\",},"*/
+// Generated by curl-to-PHP: http://incarnate.github.io/curl-to-php/
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/features/');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, "{
+	\"feature_type\": \"S\",
+	\"purpose\": \"group_variation_catalog_item\",
+	\"description\": \"$name\",
+	\"company_id\": 1,
+	\"feature_style\": \"dropdown_labels\",
+	\"status\": \"A\",
+    \"variants\": $json
+      
+     
+
+}");
+
+$headers = array();
+$headers[] =  'Authorization: Bearer '.$token.'';
+$headers[] = 'Content-Type: application/json';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+
+curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+   
+        return $response;
+    }
+
+  
+  /*----------------------------------------------------------------------------------------------------------------------*/
+  
+  //orders
+  
+      public function getOrders($business_id)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+
+
+        $ch = curl_init();
+        
+        curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/orders/');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        
+        
+        $headers = array();
+        $headers[] =  'Authorization: Bearer '.$token.'';
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        $result = curl_exec($ch);
+        
+        curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response->orders;
+    }
+
+  
+      public function getSingleOrder($business_id,$id)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+
+
+        $ch = curl_init();
+        
+        curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/orders/'.$id);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        
+        
+        $headers = array();
+        $headers[] =  'Authorization: Bearer '.$token.'';
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        $result = curl_exec($ch);
+        
+        curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response;
+    }
+
+  
+  
+  //user
+      public function getUser($business_id,$id)
+    {
+        $cscart_api_settings = $this->get_api_settings($business_id);
+        if (empty($cscart_api_settings)) {
+            throw new cscartError(__("cscart::lang.unable_to_connect"));
+        }
+        
+      
+    
+        
+
+        $email =  $cscart_api_settings->cscart_consumer_key;
+        $api_key =  $cscart_api_settings->cscart_consumer_secret;
+
+        $token = $email.":".$api_key;
+
+        $token = base64_encode($token);
+    
+
+
+        $ch = curl_init();
+        
+        curl_setopt($ch, CURLOPT_URL, $cscart_api_settings->cscart_app_url.'/api/users/'.$id);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        
+        
+        $headers = array();
+        $headers[] =  'Authorization: Bearer '.$token.'';
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        $result = curl_exec($ch);
+        
+        curl_close($ch);
+
+
+    \Log::info($result);
+
+
+            $response =  json_decode($result) ;
+     
+     
+        return $response;
+    }
+
+  
+  
+}
