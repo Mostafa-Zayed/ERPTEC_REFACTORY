@@ -1,0 +1,1 @@
+<lable for="{{$name}}">{{$slot}}</lable>

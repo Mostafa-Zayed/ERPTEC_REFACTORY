@@ -1,0 +1,213 @@
+@inject('request', 'Illuminate\Http\Request')
+
+@php $business = get_business(); @endphp
+@php $pos_layout = is_pos_layout() @endphp;
+
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{get_direction_value()}}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        
+        <link rel="icon" href="{{ asset('images/v.png') }}" type="image/gif" sizes="16x16">
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>@yield('title') - {{ Session::get('business.name') }}</title>
+        
+        <meta name="keywords" content="erp tec" />
+        
+        <meta name="description" content="نظام تجاره الكترونيه متكامل لادارة أعمالك التجاريه">
+        <meta itemprop="name" content="ERP TEC">
+        <meta itemprop="description" content="ERP TEC is E-Commerce ERP  , Specialized solutions to manage your business">
+        
+        <meta name="author" content="Erp Tec Company">
+        <meta property=”og:title” content=”نظام تجاره الكترونيه متكامل لادارة أعمالك التجاريه” />
+        <meta property=”og:url” content=”https://erptec.net/erp” />
+        <meta property=”og:type” content=”website” />
+        <meta property=”og:description” content=”نظام تجاره الكترونيه متكامل لادارة اعمالك التجاريه” />
+    
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;900&display=swap" rel="stylesheet">
+        
+        @include('layouts.partials.css')
+        
+        <!--<link rel="stylesheet" href="{{ asset('public/css/style-v1.css') }}">-->
+        
+        @yield('css')
+    </head>
+
+    <!--Start Body-->
+    <body class="@if($pos_layout) hold-transition lockscreen @else hold-transition skin-{{get_business_theme_color()}} sidebar-mini @endif">
+        
+        <!-- empty div for vuejs -->
+        <div id="app"></div>
+        
+        <!--business announce-->
+        @if($business->announce == 1)
+                <div class="modal-dialog modal-announce" role="document" style="position: absolute;left: 0;right: 0;z-index: 999;top: 100px;">
+                    <div class="modal-content">
+		                <div class="modal-header">
+		                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="top: 44px;position: absolute;right: 39px;font-size: 45px;cursor: pointer;z-index: 2;"><span aria-hidden="true">&times;</span>
+		                    </button>
+			                <h4 class="modal-title"></h4>
+		                </div>
+		                <div class="modal-body">
+		                    <a href="{{route('user.getProfile')}}"> <img src="{{asset('public/images/announce.jpg')}}" style="width:100%"></a>
+		                </div>      
+		                <div class="modal-footer">
+		                    <button type="button" class="btn btn-default btn-close" data-dismiss="modal">
+		    	                @lang('messages.close')
+		                    </button>
+		                </div>
+		            </div>      
+                </div>    
+            
+        @endif    
+        
+        <div class="wrapper">
+            @if(!$pos_layout)
+                @include('layouts.partials.header')
+                @include('layouts.partials.sidebar')
+            @else
+                @include('layouts.partials.header-pos')
+            @endif
+
+            <!-- Content Wrapper. Contains page content -->
+            <div class="main-sec">
+                <div class="@if(!$pos_layout) main-container sup-cus-p main-p-y main-p-x main-bg @endif">
+
+                <!-- Add currency related field-->
+                <input type="hidden" id="__code" value="{{session('currency')['code']}}">
+                <input type="hidden" id="__symbol" value="{{session('currency')['symbol']}}">
+                <input type="hidden" id="__thousand" value="{{session('currency')['thousand_separator']}}">
+                <input type="hidden" id="__decimal" value="{{session('currency')['decimal_separator']}}">
+                <input type="hidden" id="__symbol_placement" value="{{session('business.currency_symbol_placement')}}">
+                <input type="hidden" id="__precision" value="{{config('constants.currency_precision', 2)}}">
+                <input type="hidden" id="__quantity_precision" value="{{config('constants.quantity_precision', 2)}}">
+                <!-- End of currency related field-->
+
+                @if (session('status'))
+                    <input type="hidden" id="status_span" data-status="{{ session('status.success') }}" data-msg="{{ session('status.msg') }}">
+                @endif
+                
+                @yield('content')
+                
+                <div class="floating-whatsapp">
+                    <a href="https://wa.me/201029811233" target="_blank">
+                        <i class="fas fa-headset" style="font-size: 22px;"></i>
+                    </a>
+                </div>
+                
+                <div class='scrolltop no-print'>
+                    <div class='scroll icon'><i class="fas fa-angle-up"></i></div>
+                </div>
+
+                @if(config('constants.iraqi_selling_price_adjustment'))
+                    <input type="hidden" id="iraqi_selling_price_adjustment">
+                @endif
+
+                <!-- This will be printed -->
+                <section class="invoice print_section" id="receipt_section">
+                </section>
+                
+            </div>
+            @include('home.todays_profit_modal')
+            <!-- /.content-wrapper -->
+
+            @if(!$pos_layout)
+                @include('layouts.partials.footer')
+            @else
+                @include('layouts.partials.footer_pos')
+            @endif
+
+            <audio id="success-audio">
+              <source src="{{ asset('/public/audio/success.ogg?v=' . $asset_v) }}" type="audio/ogg">
+              <source src="{{ asset('/public/audio/success.mp3?v=' . $asset_v) }}" type="audio/mpeg">
+            </audio>
+            <audio id="error-audio">
+              <source src="{{ asset('/public/audio/error.ogg?v=' . $asset_v) }}" type="audio/ogg">
+              <source src="{{ asset('/public/audio/error.mp3?v=' . $asset_v) }}" type="audio/mpeg">
+            </audio>
+            <audio id="warning-audio">
+              <source src="{{ asset('/public/audio/warning.ogg?v=' . $asset_v) }}" type="audio/ogg">
+              <source src="{{ asset('/public/audio/warning.mp3?v=' . $asset_v) }}" type="audio/mpeg">
+            </audio>
+        </div>
+
+        @if(!empty($__additional_html))
+            {!! $__additional_html !!}
+        @endif
+
+        @include('layouts.partials.javascripts')
+
+        @if($business->is_whatsapp == 1 && !empty($business->whatsapp)) 
+            <div class="floating-whatsapp floating-whatsapp-2 no-print">
+                <a href="https://wa.me/{{$business->whatsapp}}" target="_blank">
+                    <i class="fab fa-whatsapp" style="font-size: 22px;"></i>
+                </a>
+            </div>
+        @endif
+        
+        <script>
+            $(document).ready(function(){
+                // close announce modal
+                $('.modal-announce .close, .btn-close').click(function(){
+                    $('.modal-announce').hide();
+                });
+                
+                $("Select[name='country']").change(function(){
+        
+                    var id= $(this).val();
+                    var url = "{{ url ('/city/name/')}}";
+                    var token = $("input[name='_token']").val();
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: {id:id, _token:token},
+                        success: function(data) {
+                            $("[name='city']").html('');
+                            $("[name='city']").html(data.options);
+                     
+                        }
+                    });
+                });
+                
+                $("Select[name='city']").change(function(){
+                  
+        
+                    var id= $(this).val();
+                    var url = "{{ url ('/state/name/')}}";
+                    var token = $("input[name='_token']").val();
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: {id:id, _token:token},
+                        success: function(data) {
+                     
+                    
+                            $("[name='state']").html('');
+                            $("[name='state']").html(data.options);
+                     
+                        }
+                    });
+                });
+                
+                $(".selectors").on('change',function () {
+                    var url = $(this).val();
+                    window.location = url;
+                });
+            });
+        </script>
+        
+        <div class="modal fade view_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
+            
+        </div>
+
+        
+    
+    </body>
+
+</html>
