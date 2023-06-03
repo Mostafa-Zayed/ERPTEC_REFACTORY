@@ -3,3 +3,4 @@ Modules/Jumia
 node_modules
 .htaccess
 .env
+storage/framework/sessions

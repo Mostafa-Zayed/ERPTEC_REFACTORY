@@ -15,6 +15,12 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         /* Business */
         $this->app->bind(
+            'App\Repositories\Contracts\MysqlBusinessInterface',
+            'App\Repositories\Mysql\BusinessRepository'
+        );
+
+        /* Business */
+        $this->app->bind(
             'App\Interfaces\BusinessInterface',
             'App\Repositories\BusinessRepository'
         );

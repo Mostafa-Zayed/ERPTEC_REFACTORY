@@ -13,9 +13,12 @@ class CreateZonesTable extends Migration
      */
     public function up()
     {
-        Schema::create('zones', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+        Schema::create('questions', function (Blueprint $table) {
+            // $table->increments('id');
+            // $table->timestamps();
+
+            // $table->string('type',)
+
         });
     }
 
