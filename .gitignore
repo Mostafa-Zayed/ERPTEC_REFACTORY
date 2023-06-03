@@ -5,6 +5,7 @@ node_modules
 .htaccess
 .env
 storage/framework/sessions
+storage/framework/views
 vendor
 phpunit.xml
 .idea
