@@ -1,6 +1,8 @@
 Modules/Garage
 Modules/Jumia
+Modules/Affilate
 node_modules
 .htaccess
 .env
 storage/framework/sessions
+vendor
