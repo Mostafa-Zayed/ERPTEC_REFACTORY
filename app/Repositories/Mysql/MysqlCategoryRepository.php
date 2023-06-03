@@ -4,7 +4,7 @@ namespace App\Repositories\Mysql;
 
 use App\Repositories\Contracts\MysqlCategoryInterface;
 
-class CategoryRepository implements MysqlCategoryInterface
+class MysqlCategoryRepository implements MysqlCategoryInterface
 {
 
     public function getAll()

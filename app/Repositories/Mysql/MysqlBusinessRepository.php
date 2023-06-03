@@ -3,9 +3,8 @@
 namespace App\Repositories\Mysql;
 
 use App\Repositories\Contracts\MysqlBusinessInterface;
-class BusinessRepository implements MysqlBusinessInterface
+class MysqlBusinessRepository implements MysqlBusinessInterface
 {
-
     public function register($payload)
     {
 
