@@ -736,7 +736,7 @@ class BusinessController extends Controller
     public function storeBusiness(BusinessRequest $request)
     {
         try {
-            
+
             $owner_details = $request->only(['first_name', 'last_name', 'username', 'email', 'password', 'language']);
 
             $owner_details['language'] = empty($owner_details['language']) ? config('app.locale') : $owner_details['language'];
@@ -752,7 +752,7 @@ class BusinessController extends Controller
             $business_details['owner_id'] = $user->id;
           
             $business = $this->businessInterface->addBusiness($business_details);
-        
+
             $user->business_id = $business->id;
             
             $user->save();

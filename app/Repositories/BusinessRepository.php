@@ -20,6 +20,7 @@ class BusinessRepository implements BusinessInterface
     
     public function addBusiness($data)
     {
+
         return Business::create(self::getBusinessSettings($data));
     }
     public function __construct(RoleRepository $roleRepository)
